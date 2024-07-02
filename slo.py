@@ -51,38 +51,49 @@ st.title('Pass/Fail Metrics in Last 7 Days')
 
 sns.set(style="whitegrid")
 
-# Iterate over each metric and plot a separate chart for each dataset within each data product
+# Iterate over each metric and plot a separate chart
 for metric in metrics:
     # Plotting
-    fig, axes = plt.subplots(len(data_products), len(dataset_names[data_products[0]]), figsize=(20, 12), sharex=True, sharey=True)
+    fig, axes = plt.subplots(len(data_products), 1, figsize=(12, len(data_products) * 5), sharex=True)
     fig.suptitle(f'{metric} - True/False Occurrences (Last 7 Days)', fontsize=16)
     
-    for i, data_product in enumerate(data_products):
-        for j, dataset_name in enumerate(dataset_names[data_product]):
-            # Filter data for the current data product and dataset
-            df_subset = final_df_last_7_days[(final_df_last_7_days['Data Product Name'] == data_product) &
-                                             (final_df_last_7_days['Dataset Name'] == dataset_name)]
+    for idx, data_product in enumerate(data_products):
+        # Filter data for the current data product
+        df_product = final_df_last_7_days[final_df_last_7_days['Data Product Name'] == data_product]
+        
+        # Initialize lists to store bar plot data
+        dates = []
+        true_counts = []
+        false_counts = []
+        
+        # Iterate over each date and calculate counts of True and False for the metric
+        for date in df_product['Date'].unique():
+            subset = df_product[df_product['Date'] == date]
+            true_count = subset[metric].sum()
+            false_count = len(subset) - true_count  # Assuming only True and False values
             
-            # Group by date and count True/False values for the metric
-            grouped = df_subset.groupby('Date')[metric].value_counts().unstack(fill_value=0)
-            
-            # Plot bars for True and False
-            dates = grouped.index
-            true_counts = grouped[True]
-            false_counts = grouped[False] if False in grouped.columns else pd.Series(0, index=dates)  # Handle case where there are no False values
-            
-            width = 0.35
-            ax = axes[i, j]
-            ax.bar(dates, true_counts, width, label='True', color='blue', alpha=0.6)
-            ax.bar(dates, false_counts, width, bottom=true_counts, label='False', color='red', alpha=0.6)
-            
-            # Set labels and title for each subplot
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Count')
-            ax.set_title(f'{data_product} - {dataset_name} - {metric} True/False Counts')
-            ax.legend()
-            ax.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
-            ax.tick_params(axis='x', rotation=45)
+            dates.append(date)
+            true_counts.append(true_count)
+            false_counts.append(false_count)
+        
+        # Plot bars
+        width = 0.35  # Width of the bars
+        ax = axes[idx]
+        ax.bar(dates, true_counts, width, label='True', color='blue')
+        ax.bar(dates, false_counts, width, bottom=true_counts, label='False', color='red')
+        
+        # Set labels and title for each subplot
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Count')
+        ax.set_title(f'{data_product} - {metric} True/False Counts')
+        ax.legend()
+        ax.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
+        ax.tick_params(axis='x', rotation=45)
+    
+    # Adjust layout
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.show()
+
     
     # Display plot in Streamlit
     st.pyplot(fig)
