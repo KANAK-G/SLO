@@ -7,6 +7,14 @@ import streamlit as st
 # Define data product names and dataset names
 data_products = ['sales360', 'device360', 'customer360', 'store360']
 
+dataset_names = {
+    'sales360': ['sales360_dataset_1', 'sales360_dataset_2'],
+    'device360': ['device360_dataset_1', 'device360_dataset_2'],
+    'customer360': ['customer360_dataset_1', 'customer360_dataset_2'],
+    'store360': ['store360_dataset_1', 'store360_dataset_2']
+}
+
+
 # Load the mock data
 df = pd.read_csv('slo_data.csv')
 
