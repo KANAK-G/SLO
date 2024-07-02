@@ -30,8 +30,8 @@ colors = {
 
 
 # Filter data for the last 7 days
-last_7_days_filter = (datetime.now() - timedelta(days=7)) <= final_df['Date']
-final_df_last_7_days = final_df[last_7_days_filter]
+last_7_days_filter = (datetime.now() - timedelta(days=7)) <= df['Date']
+final_df_last_7_days = df[last_7_days_filter]
 
 # Metrics to plot
 metrics = ['Freshness', 'Volume', 'Schema', 'Field Health']
