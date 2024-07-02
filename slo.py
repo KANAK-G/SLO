@@ -18,6 +18,8 @@ dataset_names = {
 # Load the mock data
 df = pd.read_csv('slo_data.csv')
 
+df['Date'] = pd.to_datetime(df['Date'])
+
 # Metrics to plot
 metrics = ['Freshness', 'Volume', 'Schema', 'Field Health']
 
