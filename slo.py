@@ -4,7 +4,7 @@ import seaborn as sns
 import streamlit as st
 
 
-# Define data product names and dataset names
+ Define data product names and dataset names
 data_products = ['sales360', 'device360', 'customer360', 'store360']
 
 dataset_names = {
@@ -27,42 +27,61 @@ colors = {
     'Fail': 'red'
 }
 
+# Display the Streamlit app
+
+
+# Filter data for the last 7 days
+last_7_days_filter = (datetime.now() - timedelta(days=7)) <= final_df['Date']
+final_df_last_7_days = final_df[last_7_days_filter]
+
+# Metrics to plot
+metrics = ['Freshness', 'Volume', 'Schema', 'Field Health']
+
+# Define colors based on conditions
+colors = {
+    True: 'blue',
+    False: 'red'
+}
+
+
 # Streamlit app
 st.title('Pass/Fail Metrics in Last 7 Days')
 
-for metric in metrics:
-    st.header(f'{metric} - Pass/Fail Occurrences (Last 7 Days)')
-    fig, axes = plt.subplots(len(data_products), len(dataset_names[data_products[0]]), figsize=(20, 12), sharex=True, sharey=True)
-    fig.suptitle(f'{metric} - Pass/Fail Occurrences (Last 7 Days)', fontsize=16)
+sns.set(style="whitegrid")
 
+# Iterate over each metric and plot a separate chart for each dataset within each data product
+for metric in metrics:
+    # Plotting
+    fig, axes = plt.subplots(len(data_products), len(dataset_names[data_products[0]]), figsize=(20, 12), sharex=True, sharey=True)
+    fig.suptitle(f'{metric} - True/False Occurrences (Last 7 Days)', fontsize=16)
+    
     for i, data_product in enumerate(data_products):
         for j, dataset_name in enumerate(dataset_names[data_product]):
             # Filter data for the current data product and dataset
-            df_subset = df[(df['Data Product Name'] == data_product) &
-                                             (df['Dataset Name'] == dataset_name)]
-
-            # Group by date and count Pass/Fail values for the metric
+            df_subset = final_df_last_7_days[(final_df_last_7_days['Data Product Name'] == data_product) &
+                                             (final_df_last_7_days['Dataset Name'] == dataset_name)]
+            
+            # Group by date and count True/False values for the metric
             grouped = df_subset.groupby('Date')[metric].value_counts().unstack(fill_value=0)
-
-            # Plot bars for Pass and Fail
+            
+            # Plot bars for True and False
             dates = grouped.index
-            pass_counts = grouped['Pass']
-            fail_counts = grouped['Fail'] if 'Fail' in grouped.columns else pd.Series(0, index=dates)  # Handle case where there are no Fail values
-
+            true_counts = grouped[True]
+            false_counts = grouped[False] if False in grouped.columns else pd.Series(0, index=dates)  # Handle case where there are no False values
+            
             width = 0.35
             ax = axes[i, j]
-            ax.bar(dates, pass_counts, width, label='Pass', color='blue', alpha=0.6)
-            ax.bar(dates, fail_counts, width, bottom=pass_counts, label='Fail', color='red', alpha=0.6)
-
+            ax.bar(dates, true_counts, width, label='True', color='blue', alpha=0.6)
+            ax.bar(dates, false_counts, width, bottom=true_counts, label='False', color='red', alpha=0.6)
+            
             # Set labels and title for each subplot
             ax.set_xlabel('Date')
             ax.set_ylabel('Count')
-            ax.set_title(f'{data_product} - {dataset_name} - {metric} Pass/Fail Counts')
+            ax.set_title(f'{data_product} - {dataset_name} - {metric} True/False Counts')
             ax.legend()
             ax.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
             ax.tick_params(axis='x', rotation=45)
-
+    
     # Display plot in Streamlit
     st.pyplot(fig)
 
-# Display the Streamlit app
