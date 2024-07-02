@@ -1,58 +1,10 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-from datetime import datetime, timedelta
 
-# Set random seed for reproducibility
-np.random.seed(42)
-
-# Generate date range for two months
-start_date = datetime.now() - timedelta(days=60)
-end_date = datetime.now()
-date_range = pd.date_range(start_date, end_date)
-
-# Define data product names and dataset names
-data_products = ['sales360', 'device360', 'customer360', 'store360']
-dataset_names = {
-    'sales360': ['sales360_dataset_1', 'sales360_dataset_2'],
-    'device360': ['device360_dataset_1', 'device360_dataset_2'],
-    'customer360': ['customer360_dataset_1', 'customer360_dataset_2'],
-    'store360': ['store360_dataset_1', 'store360_dataset_2']
-}
-
-# Initialize an empty list to store dataframes
-dfs = []
-
-# Generate mock data for each data product and dataset
-for data_product in data_products:
-    for dataset_name in dataset_names[data_product]:
-        data = {
-            'Data Product Name': [data_product] * len(date_range),
-            'Dataset Name': [dataset_name] * len(date_range),
-            'Date': date_range,
-            'Freshness': np.random.choice(['Pass', 'Fail'], size=len(date_range), p=[0.95, 0.05]),
-            'Volume': np.random.choice(['Pass', 'Fail'], size=len(date_range), p=[0.98, 0.02]),
-            'Schema': np.random.choice(['Pass', 'Fail'], size=len(date_range), p=[0.99, 0.01]),
-            'Field Health': np.random.choice(['Pass', 'Fail'], size=len(date_range), p=[0.99, 0.01])  # Varying probabilities
-        }
-
-        # Convert data dictionary to DataFrame
-        df = pd.DataFrame(data)
-
-        # Append dataframe to the list
-        dfs.append(df)
-
-# Concatenate all dataframes into a single dataframe
-final_df = pd.concat(dfs, ignore_index=True)
-
-# Set up seaborn style
-sns.set(style="whitegrid")
-
-# Filter data for the last 7 days
-last_7_days_filter = (datetime.now() - timedelta(days=7)) <= final_df['Date']
-final_df_last_7_days = final_df[last_7_days_filter]
+# Load the mock data
+df = pd.read_csv('slo_data.csv')
 
 # Metrics to plot
 metrics = ['Freshness', 'Volume', 'Schema', 'Field Health']
@@ -74,8 +26,8 @@ for metric in metrics:
     for i, data_product in enumerate(data_products):
         for j, dataset_name in enumerate(dataset_names[data_product]):
             # Filter data for the current data product and dataset
-            df_subset = final_df_last_7_days[(final_df_last_7_days['Data Product Name'] == data_product) &
-                                             (final_df_last_7_days['Dataset Name'] == dataset_name)]
+            df_subset = df[(df['Data Product Name'] == data_product) &
+                                             (df['Dataset Name'] == dataset_name)]
 
             # Group by date and count Pass/Fail values for the metric
             grouped = df_subset.groupby('Date')[metric].value_counts().unstack(fill_value=0)
