@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-
- Define data product names and dataset names
+#Define data product names and dataset names
 data_products = ['sales360', 'device360', 'customer360', 'store360']
 
 dataset_names = {
