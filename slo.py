@@ -48,7 +48,7 @@ def main():
         plt.xticks(rotation=45)
         plt.xlabel('Date')
         plt.ylabel('Pass/Fail')
-        plt.legend(title=column, labels=['Fail', 'Pass'])
+        plt.legend(title=column, labels=['Pass', 'Fail'])
         
         return plt
     
