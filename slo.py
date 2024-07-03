@@ -14,7 +14,7 @@ df['date'] = pd.to_datetime(df['date'])
 
 # Main Streamlit app
 def main():
-    st.title('Distribution of Pass/Fail for Data Products and Datasets')
+    st.title('Distribution of SLO's status for Data Products and Datasets')
     
     # Filter data for the last 7 days
     end_date = datetime.now()
