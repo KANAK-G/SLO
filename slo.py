@@ -12,6 +12,50 @@ df = pd.read_csv('slo_data.csv')
 # Convert 'date' column to datetime format if it's stored as string
 df['date'] = pd.to_datetime(df['date'])
 
+data = df
+
+# Create separate DataFrames for each dataset
+device360_df = pd.DataFrame([row for row in data if 'device360' in row['dataset_name']])
+customer360_df = pd.DataFrame([row for row in data if 'customer360' in row['dataset_name']])
+store360_df = pd.DataFrame([row for row in data if 'store360' in row['dataset_name']])
+sales360_df = pd.DataFrame([row for row in data if 'sales360' in row['dataset_name']])
+
+# Define the columns to select
+columns = [
+    'dataset_name', 
+    'field_health_check_name', 
+    'field_health_check_value', 
+    'schema_check_name', 
+    'schema_check_value', 
+    'freshness_check_name', 
+    'freshness_check_value', 
+    'volume_check_name', 
+    'volume_check_value'
+]
+
+# Create separate DataFrames for each dataset with unique values in the specified columns
+device360_unique_df = device360_df[columns].drop_duplicates()
+customer360_unique_df = customer360_df[columns].drop_duplicates()
+store360_unique_df = store360_df[columns].drop_duplicates()
+sales360_unique_df = sales360_df[columns].drop_duplicates()
+
+# Streamlit visualizations
+st.title("Unique Check Values per Dataset")
+
+st.header("Device360 Dataset")
+st.dataframe(device360_unique_df)
+
+st.header("Customer360 Dataset")
+st.dataframe(customer360_unique_df)
+
+st.header("Store360 Dataset")
+st.dataframe(store360_unique_df)
+
+st.header("Sales360 Dataset")
+st.dataframe(sales360_unique_df)
+
+
+
 # Main Streamlit app
 def main():
     st.title('Distribution of SLO status for Data Products and Datasets')
@@ -61,3 +105,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
