@@ -7,6 +7,9 @@ import streamlit as st
 # Load the mock data
 df = pd.read_csv('slo_data.csv')
 
+# Convert 'date' column to datetime format if it's stored as string
+df['date'] = pd.to_datetime(df['date'])
+
 # Main Streamlit app
 def main():
     st.title('Distribution of Pass/Fail for Data Products and Datasets')
