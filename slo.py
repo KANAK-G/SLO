@@ -12,13 +12,11 @@ df = pd.read_csv('slo_data.csv')
 # Convert 'date' column to datetime format if it's stored as string
 df['date'] = pd.to_datetime(df['date'])
 
-data = df
-
 # Create separate DataFrames for each dataset
-device360_df = pd.DataFrame([row for row in data if 'device360' in row['dataset_name']])
-customer360_df = pd.DataFrame([row for row in data if 'customer360' in row['dataset_name']])
-store360_df = pd.DataFrame([row for row in data if 'store360' in row['dataset_name']])
-sales360_df = pd.DataFrame([row for row in data if 'sales360' in row['dataset_name']])
+device360_df = df[df['dataset_name'].str.contains('device360')]
+customer360_df = df[df['dataset_name'].str.contains('customer360')]
+store360_df = df[df['dataset_name'].str.contains('store360')]
+sales360_df = df[df['dataset_name'].str.contains('sales360')]
 
 # Define the columns to select
 columns = [
@@ -53,7 +51,6 @@ st.dataframe(store360_unique_df)
 
 st.header("Sales360 Dataset")
 st.dataframe(sales360_unique_df)
-
 
 
 # Main Streamlit app
