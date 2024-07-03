@@ -1,100 +1,131 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
-import streamlit as st
+import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-#Define data product names and dataset names
-data_products = ['sales360', 'device360', 'customer360', 'store360']
+# Assuming df is already created and has data
 
-dataset_names = {
-    'sales360': ['sales360_dataset_1', 'sales360_dataset_2'],
-    'device360': ['device360_dataset_1', 'device360_dataset_2'],
-    'customer360': ['customer360_dataset_1', 'customer360_dataset_2'],
-    'store360': ['store360_dataset_1', 'store360_dataset_2']
-}
+# Filter the data for the last 7 days for device360 data product
+end_date = datetime.now()
+start_date = end_date - timedelta(days=7)
+device360_df = df[(df['data_product_name'] == 'device360') & (df['date'] >= start_date)]
 
+datasets = device360_df['dataset_name'].unique()
 
-# Load the mock data
-df = pd.read_csv('slo_data.csv')
-
-df['Date'] = pd.to_datetime(df['Date'])
-
-# Metrics to plot
-metrics = ['Freshness', 'Volume', 'Schema', 'Field Health']
-
-# Define colors based on conditions
-colors = {
-    'Pass': 'blue',
-    'Fail': 'red'
-}
-
-# Display the Streamlit app
-
-
-# Filter data for the last 7 days
-last_7_days_filter = (datetime.now() - timedelta(days=7)) <= df['Date']
-final_df_last_7_days = df[last_7_days_filter]
-
-# Metrics to plot
-metrics = ['Freshness', 'Volume', 'Schema', 'Field Health']
-
-# Define colors based on conditions
-colors = {
-    True: 'blue',
-    False: 'red'
-}
-
-
-# Streamlit app
-st.title('Pass/Fail Metrics in Last 7 Days')
-
-sns.set(style="whitegrid")
-
-# Iterate over each metric and plot a separate chart
-for metric in metrics:
-    # Plotting
-    fig, axes = plt.subplots(len(data_products), 1, figsize=(12, len(data_products) * 5), sharex=True)
-    fig.suptitle(f'{metric} - True/False Occurrences (Last 7 Days)', fontsize=16)
+# Function to plot distribution for each dataset and column
+def plot_distribution(dataset, column):
+    plt.figure(figsize=(14, 8))
+    dataset_df = device360_df[device360_df['dataset_name'] == dataset]
     
-    for idx, data_product in enumerate(data_products):
-        # Filter data for the current data product
-        df_product = final_df_last_7_days[final_df_last_7_days['Data Product Name'] == data_product]
-        
-        # Initialize lists to store bar plot data
-        dates = []
-        true_counts = []
-        false_counts = []
-        
-        # Iterate over each date and calculate counts of True and False for the metric
-        for date in df_product['Date'].unique():
-            subset = df_product[df_product['Date'] == date]
-            true_count = subset[metric].sum()
-            false_count = len(subset) - true_count  # Assuming only True and False values
-            
-            dates.append(date)
-            true_counts.append(true_count)
-            false_counts.append(false_count)
-        
-        # Plot bars
-        width = 0.35  # Width of the bars
-        ax = axes[idx]
-        ax.bar(dates, true_counts, width, label='True', color='blue')
-        ax.bar(dates, false_counts, width, bottom=true_counts, label='False', color='red')
-        
-        # Set labels and title for each subplot
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Count')
-        ax.set_title(f'{data_product} - {metric} True/False Counts')
-        ax.legend()
-        ax.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
-        ax.tick_params(axis='x', rotation=45)
+    # Convert 'Pass' and 'Fail' to 1 and 0 for proper plotting
+    dataset_df[column] = dataset_df[column].apply(lambda x: 1 if x == 'Pass' else 0)
     
-    # Adjust layout
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    sns.histplot(data=dataset_df, x='date', hue=column, multiple='stack', bins=len(pd.date_range(start=start_date, end=end_date)),
+                 palette={0: 'red', 1: 'green'}, shrink=0.8)
+    plt.title(f'Distribution of {column} for {dataset} in device360 over the last 7 days')
+    plt.xticks(rotation=45)
+    plt.xlabel('Date')
+    plt.ylabel('Pass/Fail')
+    plt.legend(title=column, labels=['Pass', 'Fail'])
     plt.show()
 
-    
-    # Display plot in Streamlit
-    st.pyplot(fig)
+columns_to_check = ['freshness', 'volume', 'schema', 'field_health']
 
+for dataset in datasets:
+    for column in columns_to_check:
+        plot_distribution(dataset, column)
+
+
+# Filter the data for the last 7 days for sales360 data product
+end_date = datetime.now()
+start_date = end_date - timedelta(days=7)
+device360_df = df[(df['data_product_name'] == 'sales360') & (df['date'] >= start_date)]
+
+datasets = device360_df['dataset_name'].unique()
+
+# Function to plot distribution for each dataset and column
+def plot_distribution(dataset, column):
+    plt.figure(figsize=(14, 8))
+    dataset_df = device360_df[device360_df['dataset_name'] == dataset]
+    
+    # Convert 'Pass' and 'Fail' to 1 and 0 for proper plotting
+    dataset_df[column] = dataset_df[column].apply(lambda x: 1 if x == 'Pass' else 0)
+    
+    sns.histplot(data=dataset_df, x='date', hue=column, multiple='stack', bins=len(pd.date_range(start=start_date, end=end_date)),
+                 palette={0: 'red', 1: 'green'}, shrink=0.8)
+    plt.title(f'Distribution of {column} for {dataset} in sales360 over the last 7 days')
+    plt.xticks(rotation=45)
+    plt.xlabel('Date')
+    plt.ylabel('Pass/Fail')
+    plt.legend(title=column, labels=['Pass', 'Fail'])
+    plt.show()
+
+columns_to_check = ['freshness', 'volume', 'schema', 'field_health']
+
+for dataset in datasets:
+    for column in columns_to_check:
+        plot_distribution(dataset, column)
+
+
+
+# Filter the data for the last 7 days for device360 data product
+end_date = datetime.now()
+start_date = end_date - timedelta(days=7)
+device360_df = df[(df['data_product_name'] == 'customer360') & (df['date'] >= start_date)]
+
+datasets = device360_df['dataset_name'].unique()
+
+# Function to plot distribution for each dataset and column
+def plot_distribution(dataset, column):
+    plt.figure(figsize=(14, 8))
+    dataset_df = device360_df[device360_df['dataset_name'] == dataset]
+    
+    # Convert 'Pass' and 'Fail' to 1 and 0 for proper plotting
+    dataset_df[column] = dataset_df[column].apply(lambda x: 1 if x == 'Pass' else 0)
+    
+    sns.histplot(data=dataset_df, x='date', hue=column, multiple='stack', bins=len(pd.date_range(start=start_date, end=end_date)),
+                 palette={0: 'red', 1: 'green'}, shrink=0.8)
+    plt.title(f'Distribution of {column} for {dataset} in customer360 over the last 7 days')
+    plt.xticks(rotation=45)
+    plt.xlabel('Date')
+    plt.ylabel('Pass/Fail')
+    plt.legend(title=column, labels=['Pass', 'Fail'])
+    plt.show()
+
+columns_to_check = ['freshness', 'volume', 'schema', 'field_health']
+
+for dataset in datasets:
+    for column in columns_to_check:
+        plot_distribution(dataset, column)
+
+
+
+# Filter the data for the last 7 days for device360 data product
+end_date = datetime.now()
+start_date = end_date - timedelta(days=7)
+device360_df = df[(df['data_product_name'] == 'store360') & (df['date'] >= start_date)]
+
+datasets = device360_df['dataset_name'].unique()
+
+# Function to plot distribution for each dataset and column
+def plot_distribution(dataset, column):
+    plt.figure(figsize=(14, 8))
+    dataset_df = device360_df[device360_df['dataset_name'] == dataset]
+    
+    # Convert 'Pass' and 'Fail' to 1 and 0 for proper plotting
+    dataset_df[column] = dataset_df[column].apply(lambda x: 1 if x == 'Pass' else 0)
+    
+    sns.histplot(data=dataset_df, x='date', hue=column, multiple='stack', bins=len(pd.date_range(start=start_date, end=end_date)),
+                 palette={0: 'red', 1: 'green'}, shrink=0.8)
+    plt.title(f'Distribution of {column} for {dataset} in store360 over the last 7 days')
+    plt.xticks(rotation=45)
+    plt.xlabel('Date')
+    plt.ylabel('Pass/Fail')
+    plt.legend(title=column, labels=['Pass', 'Fail'])
+    plt.show()
+
+columns_to_check = ['freshness', 'volume', 'schema', 'field_health']
+
+for dataset in datasets:
+    for column in columns_to_check:
+        plot_distribution(dataset, column)
