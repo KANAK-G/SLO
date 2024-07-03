@@ -38,7 +38,7 @@ store360_unique_df = store360_df[columns].drop_duplicates()
 sales360_unique_df = sales360_df[columns].drop_duplicates()
 
 # Streamlit visualizations
-st.title("Unique Check Values per Dataset")
+st.title("Unique Check Values per Data Product")
 
 st.header("Device360 Dataset")
 st.dataframe(device360_unique_df)
