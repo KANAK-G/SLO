@@ -1,6 +1,8 @@
 import pandas as pd
+
 import seaborn as sns
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # Ensure matplotlib.pyplot is imported
+
 from datetime import datetime, timedelta
 import streamlit as st
 
@@ -33,6 +35,7 @@ def main():
     
     # Function to plot distribution for each column
     def plot_distribution(data_df, data_product, dataset, column):
+        # Ensure plt is referenced from the matplotlib.pyplot module
         plt.figure(figsize=(14, 8))
         dataset_df = data_df[(data_df['data_product_name'] == data_product) & (data_df['dataset_name'] == dataset)]
         
@@ -52,8 +55,8 @@ def main():
     # Display plot for each column
     columns_to_check = ['freshness', 'volume', 'schema', 'field_health']
     for column in columns_to_check:
-        plt = plot_distribution(filtered_df, selected_data_product, selected_dataset, column)
-        st.pyplot(plt)
+        plot = plot_distribution(filtered_df, selected_data_product, selected_dataset, column)
+        st.pyplot(plot)
         st.write('\n\n')  # Add spacing between plots
 
 if __name__ == "__main__":
